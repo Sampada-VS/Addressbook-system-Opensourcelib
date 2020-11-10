@@ -10,3 +10,5 @@ gradle/
 *.csv
 gradlew
 gradlew.bat
+*.json
+*.txt
