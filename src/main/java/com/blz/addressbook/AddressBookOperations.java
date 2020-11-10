@@ -1,13 +1,14 @@
 package com.blz.addressbook;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
 
 class AddressBookOperations {
 	List<Person> personInfo;
@@ -44,10 +45,11 @@ class AddressBookOperations {
 		String fileName = sc.next();
 		String addressBookCreated = null;
 		try {
-			File myObj = new File(fileName + ".csv");
+			File myObj = new File(fileName + ".json");
 			addressBookCreated = myObj.getName();
 			if (myObj.createNewFile()) {
-				System.out.println("Address book created: ' " + addressBookCreated.replaceFirst("[.][^.]+$", "") + " '");
+				System.out
+						.println("Address book created: ' " + addressBookCreated.replaceFirst("[.][^.]+$", "") + " '");
 			} else {
 				System.out.println("Address book already exists.");
 			}
@@ -67,7 +69,7 @@ class AddressBookOperations {
 		File[] files = directoryPath.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".csv");
+				return name.endsWith(".json");
 			}
 		});
 
@@ -91,48 +93,44 @@ class AddressBookOperations {
 	}
 
 	public void getFile(String addressBookName) {
+		String tokens[] = null;
+		Path path = Paths.get(addressBookName);
+		Charset charset = Charset.forName("US-ASCII");
 		String fname, lname, addr, city, state, zip, ph;
-		try (Reader reader = Files.newBufferedReader(Paths.get(addressBookName));
-				CSVReader csvReader = new CSVReader(reader);) {
-			String[] line;
-			while ((line = csvReader.readNext()) != null) {
-				fname = line[0];
-				lname = line[1];
-				addr = line[2];
-				city = line[3];
-				state = line[4];
-				zip = line[5];
-				ph = line[6];
+		try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				tokens = line.split(",");
+				fname = tokens[0];
+				lname = tokens[1];
+				addr = tokens[2];
+				city = tokens[3];
+				state = tokens[4];
+				zip = tokens[5];
+				ph = tokens[6];
 
 				Person p = new Person(fname, lname, addr, city, state, zip, ph);
 				personInfo.add(p);
 			}
-		} catch (IOException e1) {
+
+		} 
+		  catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}
 
 	public void setFile(String addressBookName) {
-		try (   Writer writer = Files.newBufferedWriter(Paths.get(addressBookName));
-
-	            CSVWriter csvWriter = new CSVWriter(writer,
-	                    CSVWriter.DEFAULT_SEPARATOR,
-	                    CSVWriter.NO_QUOTE_CHARACTER,
-	                    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-	                    CSVWriter.DEFAULT_LINE_END);) {
+		Gson gson=new Gson();
+		try 	
+			(FileWriter writer=new FileWriter(addressBookName)){
 			Person p;
+			String line=gson.toJson(personInfo);;
 
 			for (int i = 0; i < personInfo.size(); i++) {
-				String[] line = new String[7];
 				p = (Person) personInfo.get(i);
-				line[0] = p.getFirstName();
-				line[1] = p.getLastName();
-				line[2] = p.getAddress();
-				line[3] = p.getCity();
-				line[4] = p.getState();
-				line[5] = p.getZip();
-				line[6] = p.getPhone();
-				csvWriter.writeNext(line);
+				line = p.getFirstName() + "," + p.getLastName() + "," + p.getAddress() + "," + p.getCity() + ","
+						+ p.getState() + "," + p.getZip() + "," + p.getPhone();
+				writer.write(line);
 			}
 		} catch (IOException e) {
 			System.out.println(e);

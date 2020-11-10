@@ -17,13 +17,12 @@ public class AddressBook {
 		File[] files = directoryPath.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".csv");
+				return name.endsWith(".json");
 			}
 		});
 
 		do {
-			System.out.println(
-					"== Address Book == \n 1.Create new addressbook 2.Open existing addressbook \n 3.Search using city 4.Search using state \n 5.Exit \n Enter option :");
+			System.out.println("== Address Book == \n 1.Create new addressbook 2.Open existing addressbook \n 3.Search using city 4.Search using state \n 5.Exit \n Enter option :");
 			option = sc.nextInt();
 			switch (option) {
 			case 1:
